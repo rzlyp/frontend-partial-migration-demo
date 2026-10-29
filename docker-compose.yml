@@ -1,17 +1,27 @@
-# Local run:  docker compose up --build   →  http://localhost:8080
+# One command, nothing else to run:
+#   docker compose up --build        ->  http://localhost:8080
+# Only the gateway is published to the host. Services start in dependency order and the gateway
+# starts last, once the API, legacy and Vue 3 containers report healthy.
+name: pos-demo
+
 services:
   gateway:
     build: ./gateway
     ports:
-      - "8080:80"
+      - "${GATEWAY_PORT:-8080}:80"      # if 8080 is taken:  GATEWAY_PORT=8090 docker compose up --build
     volumes:
-      # Mounted so routing changes need only:  docker compose exec gateway nginx -s reload
+      # Mounted so a routing change needs only:  docker compose exec gateway nginx -s reload
       - ./gateway/migrated-paths.conf:/etc/nginx/migrated-paths.conf:ro
       - ./gateway/migrated-routes.json:/etc/nginx/migrated-routes.json:ro
     depends_on:
-      - nuxt2
-      - vue3
-      - backend
+      backend: { condition: service_healthy }
+      nuxt2:   { condition: service_healthy }
+      vue3:    { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   backend:
     build: ./backend
@@ -22,8 +32,11 @@ services:
       REFRESH_TTL: "8h"
       REFRESH_GRACE: "30s"
       COOKIE_SECURE: "false"                 # true behind HTTPS
-    ports:
-      - "8081:8080"   # direct access for debugging (bypasses gateway)
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   nuxt2:
     build: ./legacy-nuxt2
@@ -31,11 +44,18 @@ services:
       # SSR renders on the server, so it calls the API container directly and forwards the user's cookie
       API_INTERNAL_URL: "http://backend:8080"
     depends_on:
-      - backend
-    ports:
-      - "3100:3000"   # direct access for debugging (bypasses gateway)
+      backend: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/login"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
 
   vue3:
     build: ./app-vue3
-    ports:
-      - "3101:80"     # direct access for debugging (bypasses gateway)
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

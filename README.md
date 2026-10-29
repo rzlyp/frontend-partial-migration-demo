@@ -20,12 +20,21 @@ docker compose up --build        # first build takes a few minutes (Nuxt 2 + Go 
 open http://localhost:8080       # redirects to /login
 ```
 
-Demo users (cashier and manager) are defined in [`backend/seed/users.json`](./backend/seed/users.json). Demo data only.
+That is the only command: nothing to install or generate first. The gateway starts last, once the API, legacy and Vue 3
+containers are healthy. If port 8080 is taken: `GATEWAY_PORT=8090 docker compose up --build`.
+
+### Demo login
+
+| Username | Password | Role | Can do |
+|---|---|---|---|
+| `cashier` | `cashier-demo-pass` | cashier | POS, products, orders; settings are read-only |
+| `manager` | `manager-demo-pass` | manager | everything, including editing settings |
+
+These are demo accounts seeded from [`backend/seed/users.json`](./backend/seed/users.json). Never reuse them anywhere real.
 
 | URL | Purpose |
 |---|---|
-| http://localhost:8080 | **Use this.** Everything goes through the gateway |
-| http://localhost:3100 / :3101 / :8081 | Legacy / Vue 3 / API directly (debug, bypasses gateway) |
+| http://localhost:8080 | **The only published port.** Everything (both apps and the API) goes through the gateway |
 
 Requirements: Docker with Compose v2. Node 18+ on the host is only needed for the route generator.
 
@@ -134,4 +143,4 @@ app-vue3/                     Vue 3 + Vite + Pinia + Vue Router 4, TypeScript
 - No service worker / offline mode here; the plan covers it (§7).
 - Production-style builds only (no HMR through the gateway). For Vue 3 work run `npm run dev` in `app-vue3/` or add a dev compose override.
 - `webpack@^4.46` is pinned in `legacy-nuxt2/package.json`: without it npm hoists webpack 5 and the Nuxt 2 build fails.
-- Ports 3100/3101/8081 avoid clashing with common local services; change them in `docker-compose.yml` if needed.
+- Only the gateway port is published (8080 by default, `GATEWAY_PORT` to change it). The apps and the API are reachable only through it, like in production.

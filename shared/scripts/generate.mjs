@@ -24,8 +24,8 @@ function nginx() {
     const proxy = (loc) => [
       `location ${loc} {`,
       '  include /etc/nginx/proxy-common.conf;',
-      '  proxy_pass http://$v3_upstream;',
-      '  add_header X-Served-By $v3_upstream always;',
+      '  proxy_pass http://$v3_target;',
+      '  add_header X-Served-By $v3_name always;',
       '}',
     ]
     out.push(`# ${r.match}: ${r.path}${r.note ? ` — ${r.note}` : ''}`)
