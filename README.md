@@ -1,6 +1,6 @@
 # ApplianceHub POS: Nuxt 2 → Vue 3 strangler-fig PoC
 
-Runs the architecture from [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md) locally with Docker: an **nginx gateway** in front of a
+Runs the architecture locally with Docker: an **nginx gateway** in front of a
 **legacy Nuxt 2 (SSR)** app, a **new Vue 3** app and a **Go API with JWT auth**, all on the *same origin and URLs*.
 
 ![Demo: sign in, add items, protection plan on Vue 3, checkout, kill switch](./docs/demo.gif)
