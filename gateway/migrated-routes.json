@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "path": "/settings",
+      "match": "exact"
+    },
+    {
+      "path": "/settings/protection-plan",
+      "match": "prefix"
+    }
+  ]
+}

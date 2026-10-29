@@ -1,0 +1,27 @@
+{
+  "name": "pos-app-vue3",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:routes": "node scripts/generate-routes.mjs",
+    "predev": "npm run generate:routes",
+    "dev": "vite --host",
+    "prebuild": "npm run generate:routes",
+    "build": "vite build",
+    "pretypecheck": "npm run generate:routes",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "pinia": "^2.3.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.5",
+    "vue-tsc": "^2.2.0"
+  }
+}

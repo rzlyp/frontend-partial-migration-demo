@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+.nuxt/
+dist/
+src/generated/
+
+# kept local on purpose
+MIGRATION_PLAN.md

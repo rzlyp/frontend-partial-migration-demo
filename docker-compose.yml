@@ -1,0 +1,41 @@
+# Local run:  docker compose up --build   →  http://localhost:8080
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:80"
+    volumes:
+      # Mounted so routing changes need only:  docker compose exec gateway nginx -s reload
+      - ./gateway/migrated-paths.conf:/etc/nginx/migrated-paths.conf:ro
+      - ./gateway/migrated-routes.json:/etc/nginx/migrated-routes.json:ro
+    depends_on:
+      - nuxt2
+      - vue3
+      - backend
+
+  backend:
+    build: ./backend
+    environment:
+      # DEV ONLY. In staging/production inject from AWS Secrets Manager / EB environment properties.
+      JWT_SECRET: "dev-only-jwt-secret-please-change-0123456789"
+      ACCESS_TTL: "${ACCESS_TTL:-15m}"       # e.g. ACCESS_TTL=20s docker compose up -d to watch silent refresh
+      REFRESH_TTL: "8h"
+      REFRESH_GRACE: "30s"
+      COOKIE_SECURE: "false"                 # true behind HTTPS
+    ports:
+      - "8081:8080"   # direct access for debugging (bypasses gateway)
+
+  nuxt2:
+    build: ./legacy-nuxt2
+    environment:
+      # SSR renders on the server, so it calls the API container directly and forwards the user's cookie
+      API_INTERNAL_URL: "http://backend:8080"
+    depends_on:
+      - backend
+    ports:
+      - "3100:3000"   # direct access for debugging (bypasses gateway)
+
+  vue3:
+    build: ./app-vue3
+    ports:
+      - "3101:80"     # direct access for debugging (bypasses gateway)
