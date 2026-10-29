@@ -3,6 +3,10 @@
 Runs the architecture from [`MIGRATION_PLAN.md`](./MIGRATION_PLAN.md) locally with Docker: an **nginx gateway** in front of a
 **legacy Nuxt 2 (SSR)** app, a **new Vue 3** app and a **Go API with JWT auth**, all on the *same origin and URLs*.
 
+![Demo: sign in, add items, protection plan on Vue 3, checkout, kill switch](./docs/demo.gif)
+
+*Walkthrough: sign in, add appliances, pick protection plans on the Vue 3 page (same session and cart), pay on legacy, then flip `/settings` back to legacy with the `ui=legacy` cookie.*
+
 ```text
                     ┌────────────── gateway (nginx) :8080 ──────────────┐
  browser ──────────▶│  /api/*              → backend (Go, JWT)          │
